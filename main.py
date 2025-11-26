@@ -9,13 +9,17 @@ from aiogram.client.default import DefaultBotProperties
 from handlers import router 
 
 async def main():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(levelname)s:%(filename)s:%(funcName)s:%(message)s'
+    )
     token = config('BOT_TOKEN')
     
     if not token:
         raise RuntimeError('Token was not provided')
     
     dispatcher = Dispatcher()
+    
     bot = Bot(
         token=token,
         default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN),

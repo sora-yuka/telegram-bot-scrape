@@ -1,7 +1,10 @@
+import logging
 from typing import List, Dict
 from aiogram import Router, types
 from .handle_media import *
-from utilities.extractor import XLinkExtractor
+from utilities.tweet_extractor import XLinkExtractor
+
+logger = logging.getLogger(__name__)
 
 extractor = XLinkExtractor()
 router = Router(name='bot_reply_router')
@@ -13,7 +16,7 @@ async def get_tweet_id(message: types.Message):
     try:
         return extractor.extract_link(url) or None
     except Exception as e:
-        print(e)
+        logger.warning('Wrong tweet url - %s', e)
         await message.reply("Couldn't unshortened the link.")
         
 @router.message()
@@ -27,6 +30,6 @@ async def reply_with_media(
     gifs = [media for media in tweet_media if tweet_media[0]['type'] == 'gif']
     
     if photos:
-        await send_message(message, photos, publisher_data)
+        await x_media_processor.send_photo(message, photos, publisher_data)
     if videos:
-        await send_video(message, videos, publisher_data)
+        await x_media_processor.send_video(message, videos, publisher_data)

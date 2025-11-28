@@ -7,34 +7,35 @@ services:
     environment:
       - TELEGRAM_API_ID=${TELEGRAM_API_ID}
       - TELEGRAM_API_HASH=${TELEGRAM_API_HASH}
-      
-      - TELEGRAM_LOCAL=1
-      - TELEGRAM_STAT=1
     
     ports:
       - '8081:8081'
-      - '8082:8082'
     
     volumes:
       - telegram-bot-api-data:/var/lib/telegram-bot-api
-      - ./downloads:/tmp/downloads
     
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: '2G'
-        reservations:
-          cpus: '1'
-          memory: '512M'
-      
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8081']
+      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:8081 || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
+  
+  # bot:
+  #   build: .
+  #   container_name: telegram-bot-dev
+  #   restart: unless-stopped
+  #   depends_on:
+  #     telegram-bot-api:
+  #       condition: service_healthy
+  #   environment:
+  #     - BOT_TOKEN=${BOT_TOKEN}
+  #     - TELEGRAM_API_ID=${TELEGRAM_API_ID}
+  #     - TELEGRAM_API_HASH=${TELEGRAM_API_HASH}
+  #   networks:
+  #     - bot-network
+  #   volumes:
+  #     - ./:/app
 
 volumes:
   telegram-bot-api-data:
-    driver: local
